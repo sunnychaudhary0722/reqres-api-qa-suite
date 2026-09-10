@@ -1,0 +1,345 @@
+{
+  "info": {
+    "name": "Reqres API - QA Test Suite",
+    "description": "Manual + scripted API test suite for the reqres.in DEMO API (no auth required per https://reqres.in/llm.txt). Covers Users CRUD, Auth (register/login), performance, and schema validation. Maps to QA_Test_Cases_Reqres_API.xlsx. Note: reqres.in also has a separate Project API requiring an x-api-key for persistent CRUD - out of scope for this suite.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://reqres.in/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "TC-01 List users - default pagination",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response has pagination fields', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('page');",
+                  "  pm.expect(json).to.have.property('per_page');",
+                  "  pm.expect(json).to.have.property('total');",
+                  "  pm.expect(json.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-02 List users - specific page",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users?page=2",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Page field equals 2', function () { pm.expect(pm.response.json().page).to.eql(2); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-04 Get single user - valid ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/2",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Returned user has id 2', function () { pm.expect(pm.response.json().data.id).to.eql(2); });",
+                  "pm.test('User object has required fields', function () {",
+                  "  const user = pm.response.json().data;",
+                  "  ['id','email','first_name','last_name','avatar'].forEach(f => pm.expect(user).to.have.property(f));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-05 Get single user - non-existent ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/23",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () { pm.response.to.have.status(404); });",
+                  "pm.test('Body is empty object', function () { pm.expect(pm.response.text()).to.eql('{}'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-07 Create user - valid payload",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Sunny\",\"job\":\"QA Engineer\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Response echoes submitted fields', function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.name).to.eql('Sunny');",
+                  "  pm.expect(json.job).to.eql('QA Engineer');",
+                  "  pm.expect(json).to.have.property('id');",
+                  "  pm.expect(json).to.have.property('createdAt');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-09 Update user - valid payload",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/users/2",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Sunny\",\"job\":\"Senior QA Engineer\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response includes updatedAt timestamp', function () { pm.expect(pm.response.json()).to.have.property('updatedAt'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-10 Delete user - valid ID",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/users/2",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "TC-12 Register - valid credentials",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"eve.holt@reqres.in\",\"password\":\"pistol\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response has token', function () { pm.expect(pm.response.json()).to.have.property('token'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-13 Register - missing password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"eve.holt@reqres.in\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Error message mentions missing password', function () {",
+                  "  pm.expect(pm.response.json().error).to.eql('Missing password');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-15 Login - valid credentials",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"eve.holt@reqres.in\",\"password\":\"cityslicka\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response has token', function () { pm.expect(pm.response.json()).to.have.property('token'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-16 Login - missing password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"eve.holt@reqres.in\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () { pm.response.to.have.status(400); });",
+                  "pm.test('Error message mentions missing password', function () {",
+                  "  pm.expect(pm.response.json().error).to.eql('Missing password');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Performance",
+      "item": [
+        {
+          "name": "TC-18 Delayed response endpoint",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users?delay=3",
+            "header": []
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200 despite delay', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response time is within acceptable bound', function () {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(6000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
