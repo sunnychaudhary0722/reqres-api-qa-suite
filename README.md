@@ -56,18 +56,6 @@ Verify the functional correctness, error handling, and basic performance charact
 - Postman collection (`.json`) — importable and runnable via Postman or Newman (CLI runner)
 - This test plan and summary of findings
 
-## Findings (fill in after execution)
-
-> Run each test case, update the Status column in the spreadsheet, and log anything unexpected here in a short bug-report style: **Title / Steps / Expected / Actual / Severity**.
-
-Findings so far:
-
-**Finding 1 — Rate-limit messaging is inconsistent across responses**
-- **Steps:** Send repeated anonymous requests to a demo endpoint (e.g. `GET /api/users?page=999`) until rate-limited
-- **Expected:** A rate-limit error consistent with Reqres's published limits (20 req/min on `/api/users`, 100 req/min on `/api/*`)
-- **Actual:** One rate-limited response cited a "40 requests/day" anonymous cap and suggested signing up for a key; a follow-up request with a (placeholder) API key returned a different error, `invalid_api_key`, on an endpoint that per official docs requires no key at all. The two error responses also carried different internal `"variant"` tags (`v1_a` vs `v1_b`), suggesting active A/B testing of error messaging.
-- **Severity:** Low/Informational for a suite consumer — doesn't block testing since demo endpoints don't need a key — but worth flagging: documented rate limits (per-minute) don't match the daily-cap language actually surfaced in a live error response. A real integration relying on the documented per-minute limit could be surprised by the stricter, undocumented daily cap.
-- **Note:** This superseded an earlier, unverified finding about `page=999` returning an empty array instead of an error — that original behavior is still unconfirmed and should be re-tested once you're clear of any rate limit (wait a few minutes, since the real limit is per-minute, not per-day).
 
 ## How to run
 
