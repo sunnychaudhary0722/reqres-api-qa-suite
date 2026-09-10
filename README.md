@@ -4,7 +4,7 @@ A self-directed QA portfolio project: manual and scripted API testing of the pub
 
 ## Why this project
 
-Built to demonstrate practical manual and API testing skills — test planning, test case design, defect-style analysis, and Postman scripting — end to end on a real (if mock) API.
+Built to demonstrate practical manual and API testing skills — test planning, test case design, defect-style analysis, and Postman scripting — end to end on a real API.
 
 ## Contents
 
