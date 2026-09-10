@@ -11,9 +11,7 @@ Built to demonstrate practical manual and API testing skills — test planning, 
 | File | Purpose |
 |---|---|
 | `QA_Test_Cases_Reqres_API.xlsx` | 20 documented test cases: functional, negative, edge case, performance, and schema validation, with priority and status tracking |
-| `Reqres_API_Tests.postman_collection.json` | Importable Postman collection with scripted `pm.test` assertions covering the high-priority test cases |
-| `Test_Plan_and_README.md` | This file — test plan, scope, approach, and findings |
-
+| `Reqres_API_Tests.postman_collection.json` | Importable Postman collection with scripted `pm.test` assertions covering the high-priority test 
 ## Test Plan
 
 ### 1. Objective
